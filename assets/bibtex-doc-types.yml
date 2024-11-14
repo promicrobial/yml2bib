@@ -1,0 +1,91 @@
+fields:
+  "@book":
+    required: [["author", "authors"], "title", "year", "publisher"]
+    optional: ["volume", "number", "note"]
+  "@article":
+    required: [["author", "authors"], "title", "journal", "year"]
+    optional: ["volume", "number", "pages", "note"]
+  "@inproceedings":
+    required: [["author", "authors"], "title", "booktitle", "year"]
+    optional: ["pages", "note"]
+  "@incollection":
+    required: [["author", "authors"], "title", "booktitle", "year", "publisher"]
+    optional: ["chapter", "pages", "note"]
+  "@mastersthesis":
+    required: [["author", "authors"], "title", "school", "year"]
+    optional: ["note"]
+  "@phdthesis":
+    required: [["author", "authors"], "title", "school", "year"]
+    optional: ["note"]
+  "@techreport":
+    required: [["author", "authors"], "title", "year", "institution", "number"]
+    optional: ["note"]
+  "@periodical":
+    required: [["editor", "editors"], "title", "year"]
+    optional: ["volume", "number", "note"]
+  "@suppperiodical":
+    required: [["author", "authors"], "title", "journal", "year"]
+    optional: ["volume", "number", "pages", "note"]
+  "@inbook":
+    required: [["author", "authors"], "title", "booktitle", "year"]
+    optional: ["chapter", "pages", "note"]
+  "@suppbook":
+    required: [["author", "authors"], "title", "booktitle", "year"]
+    optional: ["chapter", "pages", "note"]
+  "@bookinbook":
+    required: [["author", "authors"], "title", "booktitle", "year"]
+    optional: ["chapter", "pages", "note"]
+  "@mvbook":
+    required: [["author", "authors"], "title", "year"]
+    optional: ["volume", "number", "note"]
+  "@suppcollection":
+    required: [["author", "authors"], "title", "booktitle", "year"]
+    optional: ["chapter", "pages", "note"]
+  "@mvcollection":
+    required: [["author", "authors"], "title", "year"]
+    optional: ["volume", "number", "note"]
+  "@proceedings":
+    required: [["editor", "editors"], "title", "year"]
+    optional: ["volume", "number", "note"]
+  "@mvproceedings":
+    required: [["editor", "editors"], "title", "year"]
+    optional: ["volume", "number", "note"]
+  "@inreference":
+    required: [["author", "authors"], "title", "booktitle", "year"]
+    optional: ["chapter", "pages", "note"]
+  "@reference":
+    required: [["editor", "editors"], "title", "year"]
+    optional: ["volume", "number", "note"]
+  "@mvreference":
+    required: [["editor", "editors"], "title", "year"]
+    optional: ["volume", "number", "note"]
+  "@manual":
+    required: [["author", "authors"], "title", "year"]
+    optional: ["organization", "address", "edition", "note"]
+  "@report":
+    required: [["author", "authors"], "title", "institution", "year"]
+    optional: ["number", "note"]
+  "@patent":
+    required: [["author", "authors"], "title", "year"]
+    optional: ["number", "note"]
+  "@thesis":
+    required: [["author", "authors"], "title", "school", "year"]
+    optional: ["type", "note"]
+  "@online":
+    required: [["author", "authors"], "title", "year"]
+    optional: ["url", "note"]
+  "@booklet":
+    required: [["author", "authors"], "title", "year"]
+    optional: ["howpublished", "note"]
+  "@unpublished":
+    required: [["author", "authors"], "title", "year"]
+    optional: ["note"]
+  "@misc":
+    required: [["author", "authors"], "title", "year"]
+    optional: ["howpublished", "note"]
+  "@set":
+    required: [["author", "authors"], "title", "year"]
+    optional: ["note"]
+  "@xdata":
+    required: [["author", "authors"], "title", "year"]
+    optional: ["note"]
