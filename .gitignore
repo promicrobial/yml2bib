@@ -1,0 +1,50 @@
+# Python specific
+__pycache__/                # Ignore Python cache directories
+*.py[cod]                   # Ignore compiled Python files
+*.pyo                       # Ignore optimized Python files
+*.pyd                       # Ignore Python dynamic modules
+*.egg                       # Ignore egg distribution files
+*.egg-info/                 # Ignore egg-info directories
+dist/                       # Ignore distribution directories
+build/                      # Ignore build directories
+*.whl                       # Ignore wheel files
+
+# Environment
+venv/                       # Ignore virtual environment directories
+env/                        # Ignore virtual environment directories
+ENV/                        # Ignore virtual environment directories
+.venv/                      # Ignore virtual environment directories
+.env
+
+# Jupyter Notebook
+.ipynb_checkpoints/         # Ignore Jupyter notebook checkpoints
+
+# Logs
+*.log                       # Ignore log files
+
+# IDE specific
+.idea/                      # Ignore JetBrains IDE project files
+.vscode/                    # Ignore Visual Studio Code settings
+*.code-workspace            # Ignore VS Code workspace settings
+*.swp                       # Ignore swap files
+*.sublime-project           # Ignore Sublime Text project files
+*.sublime-workspace         # Ignore Sublime Text workspace files
+
+# OS generated files
+.DS_Store                   # Ignore macOS Finder files
+Thumbs.db                  # Ignore Windows thumbnail cache files
+ehthumbs.db                # Ignore Windows thumbnail cache files
+.DS_Store?
+.Spotlight-V100
+.Trashes
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Other
+*.bak                       # Ignore backup files
+*.orig                      # Ignore original files
