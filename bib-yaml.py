@@ -1,156 +1,94 @@
-# Requires Python 3
-
 import argparse
 import yaml
 import codecs
-
+import logging
 
 class ConversionException(Exception):
-  def __init__(self, value):
-    self.value = value
-  def __str__(self):
-    return repr(self.value)
+    pass
 
+class MissingFieldException(ConversionException):
+    pass
+
+class DuplicateKeyException(ConversionException):
+    pass
 
 def required_fields():
-  return {
-    "book": [["author","authors"], "title", "year", "publisher"],
-    "journal": [["author","authors"], "title", "journal", "year"],
-    "conference": [["author","authors"], "title", "booktitle", "year"],
-    "collection": [["author","authors"], "title", "booktitle", "year", "publisher"],
-    "masters thesis": [["author","authors"], "title", "school", "year"],
-    "phd thesis": [["author","authors"], "title", "school", "year"],
-    "tech report": [["author","authors"], "title", "year", "institution", "number"]
-  }
+    return {
+        "book": [["author", "authors"], "title", "year","publisher"],
+        "journal": [["author", "authors"], "title","journal", "year"],
+        "conference": [["author", "authors"], "title","booktitle", "year"],
+        "collection": [["author", "authors"], "title","booktitle", "year", "publisher"],
+        "masters thesis": [["author", "authors"],"title", "school", "year"],
+        "phd thesis": [["author", "authors"], "title","school", "year"],
+        "tech report": [["author", "authors"], "title","year", "institution", "number"]
+        }
 
 def type_identifiers():
-  return {
-    "book": "@book",
-    "journal": "@article",
-    "conference": "@inproceedings",
-    "collection": "@incollection",
-    "masters thesis": "@mastersthesis",
-    "phd thesis": "@phdthesis",
-    "tech report": "@techreport"
-  }
+    return {
+        "book": "@book",
+        "journal": "@article",
+        "conference": "@inproceedings",
+        "collection": "@incollection",
+        "masters thesis": "@mastersthesis",
+        "phd thesis": "@phdthesis",
+        "tech report": "@techreport"
+    }
 
 def check_required_fields(item):
-  typ = item['type']
-  try:
-    req_fields = required_fields()[typ]
-  except KeyError:
-    req_fields = []
-
-  for field in req_fields:
-    if type(field) is list:
-      ok = False
-      for option in field:
-        if option in item:
-          ok = True
-          break
-      if not ok:
-        msg = "Missing required field:"
-        for option in field:
-          msg += " '" + option + "'"
-          if (option != field.last):
-            msg += " or"
-        raise ConversionException(msg)
-    else:
-      if not field in item:
-        raise ConversionException("Missing required field: '" + field + "'")
-
+    req_fields = required_fields().get(item['type'], [])
+    for field in req_fields:
+        if isinstance(field, list):
+            if not any(option in item for option in field):
+                raise MissingFieldException(f"Missing required field: {' or '.join(field)}")
+        elif field not in item:
+            raise MissingFieldException(f"Missing required field: '{field}'")
 
 def process_item(key, item, out_file):
-  print("processing " + str(key))
-
-  try:
-    typ = item['type']
-  except KeyError:
-    raise ConversionException("Missing type")
-
-  try:
-    out_file.write( type_identifiers()[typ] )
-  except KeyError:
-    raise ConversionException("Unknown type: " + str(typ))
-
-  out_file.write("{")
-
-  try:
-    authors = item['authors']
-  except KeyError:
-    try:
-      authors = [item['author']]
-    except KeyError:
-      raise ConversionException("Missing author")
-
-  try:
-    year = item['year']
-  except KeyError:
-    raise ConversionException("Missing year")
-
-  check_required_fields(item)
-
-  print("writing: " + key)
-
-  out_file.write(key + " ,\n")
-
-  out_file.write("  author = {")
-  for a in range(len(authors)):
-    out_file.write(authors[a])
-    if a < len(authors)-1:
-      out_file.write(" and ")
-  out_file.write("},\n")
-
-  for field in ['type', 'author', 'authors']:
-    try:
-      del item[field]
-    except KeyError:
-      pass
-
-  for key, value in item.items():
-    out_file.write("  " + key + " = {")
-    if isinstance(value,list):
-      for v in range(len(value)):
-        out_file.write(value[v])
-        if v < len(value)-1:
-          out_file.write(" and ")
-    else:
-      out_file.write(str(value))
-    out_file.write("},\n")
-
-  out_file.write("}\n\n")
+    logging.info(f"Processing {key}")
+    typ = item.get('type')
+    if not typ:
+        raise MissingFieldException("Missing type")
+    out_file.write(f"{type_identifiers().get(typ, 'Unknown type')}{{")
+    authors = item.get('authors', [item.get('author')])
+    if not authors[0]:
+        raise MissingFieldException("Missing author")
+    if 'year' not in item:
+        raise MissingFieldException("Missing year")
+    check_required_fields(item)
+    logging.info(f"Writing: {key}")
+    out_file.write(f"{key} ,\n  author = {{{' and '.join(authors)}}},\n")
+    for field in ['type', 'author', 'authors']:
+        item.pop(field, None)
+    for k, v in item.items():
+        out_file.write(f"  {k} = {{{' and '.join(v) if isinstance(v, list) else v}}},\n")
+    out_file.write("}\n\n")
 
 def main():
-  parser = argparse.ArgumentParser(description='Translate bibliography from YAML to BIB.')
-  parser.add_argument('input', nargs=1)
-  parser.add_argument('output', nargs='?')
-  a = parser.parse_args()
+    parser = argparse.ArgumentParser(description='Translate bibliography from YAML to BIB.')
+    parser.add_argument('input', help='Input YAML file')
+    parser.add_argument('output', nargs='?', help='Output BIB file')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
+    args = parser.parse_args()
 
-  in_file_name = a.input[0]
-  out_file_name = None
+    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
 
-  if a.output != None:
-    out_file_name = a.output
-  else:
-    out_file_name = in_file_name.split('/')[-1].rpartition('.')[0] + ".bib"
+    in_file_name = args.input
+    out_file_name = args.output or f"{in_file_name.rsplit('/', 1)[-1].rsplit('.', 1)[0]}.bib"
+    logging.info(f"Input = {in_file_name}\nOutput = {out_file_name}")
 
-  print("input = " + in_file_name)
-  print("output = " + out_file_name)
+    with codecs.open(in_file_name, encoding='utf-8', mode='r') as in_file, \
+        codecs.open(out_file_name, encoding='utf-8', mode='w') as out_file:
+        data = yaml.load(in_file, Loader=yaml.SafeLoader)
+        items = {}
+        for key, item in data.items():
+            try:
+                if key in items:
+                    raise DuplicateKeyException(f"Duplicate key: {key}")
+                items[key] = item
+                process_item(key, item, out_file)
+            except ConversionException as e:
+                logging.error(f"*** Error while processing an item: {e}")
 
-  in_file = codecs.open(in_file_name, encoding='utf-8', mode='r')
-  out_file = codecs.open(out_file_name, encoding='utf-8', mode='w')
+if __name__ == "__main__":
+    main()
 
-  yaml_string = in_file.read();
-  data = yaml.load(yaml_string);
-
-  items = {}
-  for key, item in data.items():
-    try:
-      if key in items:
-        raise ConversionException("Duplicate key: "  + str(key))
-      items[key] = item
-      process_item(key, item, out_file)
-    except ConversionException as e:
-      print("*** Error while processing an item: " + str(e))
-
-main()
