@@ -1,0 +1,6 @@
+example_key:
+  title: What a cool book!
+  type: book
+  author: John Doe
+  year: 2021
+  publisher: Awesome Publisher
